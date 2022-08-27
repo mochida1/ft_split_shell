@@ -6,17 +6,15 @@
 /*   By: coder <coder@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 01:58:18 by coder             #+#    #+#             */
-/*   Updated: 2022/08/27 19:39:45 by coder            ###   ########.fr       */
+/*   Updated: 2022/08/27 20:33:43 by coder            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-
-typedef struct s_split_shell
-{
+/*
+** This should likely go to your header file.
+*/
+typedef struct s_split_shell //add this struct to your header.
+{ //don't forget to add your header to this file too.
 	char	*string;
 	char	*temp;
 	int		words;
@@ -25,7 +23,10 @@ typedef struct s_split_shell
 	char	delimiter;
 }	t_split_shell;
 
-void	iterate_through_quotes(t_split_shell *this)
+/*
+** Quite literally iterates through the quotes.
+*/
+static void	iterate_through_quotes(t_split_shell *this)
 {
 	char	first_char;
 
@@ -46,7 +47,10 @@ void	iterate_through_quotes(t_split_shell *this)
 	this->words++;
 }
 
-void	count_words(t_split_shell *this)
+/*
+** Counts how many string splinters there'll be.
+*/
+static void	count_words(t_split_shell *this)
 {
 	this->temp = this->string;
 	while (this->temp[0])
@@ -57,7 +61,10 @@ void	count_words(t_split_shell *this)
 	}
 }
 
-int	get_word_size(char *str, char delimiter)
+/*
+** Counts how many characaters a given string splinter has.
+*/
+static int	get_word_size(char *str, char delimiter)
 {
 	char	*temp;
 	char	first_char;
@@ -85,7 +92,11 @@ int	get_word_size(char *str, char delimiter)
 	return (size);
 }
 
-void	copy_to_split(char *split, t_split_shell *this, int i)
+/*
+** Copies while advancing the pointer, in a manner that we don't need to track
+** the progress back, while respecting most shell's quotation rules.
+*/
+static void	copy_to_split(char *split, t_split_shell *this, int i)
 {
 	char	first_char;
 
@@ -123,18 +134,18 @@ char	**ft_split_shell(char *str, char delimiter)
 	char			**splits;
 	t_split_shell	*this;
 
-	this = calloc (1, sizeof(*this) + 1);
+	this = ft_calloc (1, sizeof(*this) + 1);
 	this->temp = str;
 	this->delimiter = delimiter;
 	this->string = str;
 	count_words(this);
-	splits = calloc ((this->words + 1), sizeof(char *));
+	splits = ft_calloc ((this->words + 1), sizeof(char *));
 	this->temp = this->string;
 	while (this->i < this->words)
 	{
 		while (this->temp[0] == this->delimiter)
 			this->temp++;
-		splits[this->i] = calloc ((get_word_size
+		splits[this->i] = ft_calloc ((get_word_size
 					(this->temp, delimiter) + 1), sizeof(char));
 		copy_to_split (splits[this->i], this, 0);
 		this->i++;
