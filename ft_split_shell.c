@@ -6,7 +6,7 @@
 /*   By: coder <coder@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 01:58:18 by coder             #+#    #+#             */
-/*   Updated: 2022/08/27 06:06:51 by coder            ###   ########.fr       */
+/*   Updated: 2022/08/27 19:27:47 by coder            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
-
-// char	**ft_split_shell(char *str, char delimiter)
-// {
-
-
-// }
 
 typedef struct s_split_shell
 {
@@ -76,12 +70,12 @@ int	get_word_size (char *str, char delimiter)
 	{
 		temp++; //pula a primeira letra que sabemos qual é
 		size++; // já soma a bagaça
-		while(*str && (*str != first_char)) //enquanto não for a mesma coisa e enquanto nao acabar
+		while(*temp && (*temp != first_char)) //enquanto não for a mesma coisa e enquanto nao acabar
 		{
 			temp++;
 			size++;
 		}
-		return (size + (*str == first_char)); //retorna e i, e se o ultimo caractere for igual a ' ou ", soma mais um pq não iteramos por ele
+		return (size + (*temp == first_char)); //retorna e i, e se o ultimo caractere for igual a ' ou ", soma mais um pq não iteramos por ele
 	}
 	while (*temp && (*temp != delimiter))
 	{
@@ -105,7 +99,6 @@ void	copy_to_split(char *split, t_split_shell *this)
 		while (this->temp[0] != first_char)
 		{
 			split[i] = this->temp[0];
-			printf (">%d<%c\n", i, split[i]);
 			i++;
 			this->temp++;
 		}
@@ -122,12 +115,8 @@ void	copy_to_split(char *split, t_split_shell *this)
 	split[i] = 0;
 }
 
-int main (void)
+char	**ft_split_shell(char *str, char delimiter)
 {
-	char	delimiter = ' ';
-	// char	*str = "<< hi this is \" a test<<t\'o>>test\" >><\'< \">\'>|>> \'>>\'<<>>";
-	char	*str = strdup("    aaaaa    \'bbbbbbb\'   \"ccccccc\" \'dd\"dd\'      \"ee\'ee\" ffffff g");
-
 	char			**splits;
 	t_split_shell	*this;
 
@@ -144,20 +133,29 @@ int main (void)
 			this->temp++;
 		splits[this->i] = calloc ((get_word_size(this->temp, this->delimiter) + 1) , sizeof(char)); //alloca memória pro rolê, já inicializada em 0 :)
 		copy_to_split (splits[this->i], this);
-		printf ("[%d]%s\n", this->i, splits[this->i]);
 		this->i++;
 	}
+	free (this);
+	return (splits);
+}
 
+int main (void)
+{
+	char	delimiter = ' ';
+	// char	*str = "<< hi this is \" a test<<t\'o>>test\" >><\'< \">\'>|>> \'>>\'<<>>";
+	char	*str = strdup("    aaaaa    \'bbbbbbb\'   \"ccccccc\" \'dd\"dd\'      \"ee\'ee\" ffffff g \'h\' \"  \"");
+	char **splits = ft_split_shell(str, delimiter);
 
-	this->i = 0;
+	int i = 0;
 	{
-		while (this->i < this->words)
+		while (splits[i])
 		{
-			free (splits[this->i]);
-			this->i++;
+			printf ("[%d]%s\n", i, splits[i]);
+			free (splits[i]);
+			i++;
 		}
 	}
-	free (this);
+	free (splits);
 	free (str);
 	return (0);
 }
