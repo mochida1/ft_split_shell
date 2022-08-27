@@ -6,7 +6,7 @@
 /*   By: coder <coder@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 01:58:18 by coder             #+#    #+#             */
-/*   Updated: 2022/08/27 19:27:47 by coder            ###   ########.fr       */
+/*   Updated: 2022/08/27 19:39:45 by coder            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,70 +27,68 @@ typedef struct s_split_shell
 
 void	iterate_through_quotes(t_split_shell *this)
 {
-	char first_char;
+	char	first_char;
 
 	first_char = this->temp[0];
-	if (first_char == '\'' || first_char == '\"') //se o primeiro caractere for alguma aspa
+	if (first_char == '\'' || first_char == '\"')
 	{
-		if (this->temp[1]) //checa se o proximo elemento não é nulo
+		if (this->temp[1])
 			this->temp++;
-		while (this->temp[0] && (this->temp[0] != first_char)) //itera até achar o próximo
+		while (this->temp[0] && (this->temp[0] != first_char))
 			this->temp++;
 		if (this->temp[0] == first_char)
 			this->temp++;
 		this->words++;
 		return ;
 	}
-	while (this->temp[0] && (this->temp[0] != this->delimiter)) //aqui checamos o caso da palavra não conter aspas;
+	while (this->temp[0] && (this->temp[0] != this->delimiter))
 		this->temp++;
-	this->words++; //contamos mais uma palavra
+	this->words++;
 }
 
-void	count_words (t_split_shell *this) //conta quantas palavras temos
+void	count_words(t_split_shell *this)
 {
 	this->temp = this->string;
 	while (this->temp[0])
 	{
 		while (this->temp[0] == this->delimiter)
 			this->temp++;
-		iterate_through_quotes(this); //pula até os proximos espaços, se alguma aspas for o primeiro caratere, itera até o primeio espaço depois de aspas
+		iterate_through_quotes(this);
 	}
 }
 
-int	get_word_size (char *str, char delimiter)
+int	get_word_size(char *str, char delimiter)
 {
-	char	*temp; //não queremos mexer no original;
+	char	*temp;
 	char	first_char;
 	int		size;
 
 	temp = str;
 	size = 0;
 	first_char = *temp;
-	if (first_char == '\'' || first_char == '\"') //se o primeiro char for aspas
+	if (first_char == '\'' || first_char == '\"')
 	{
-		temp++; //pula a primeira letra que sabemos qual é
-		size++; // já soma a bagaça
-		while(*temp && (*temp != first_char)) //enquanto não for a mesma coisa e enquanto nao acabar
+		temp++;
+		size++;
+		while (*temp && (*temp != first_char))
 		{
 			temp++;
 			size++;
 		}
-		return (size + (*temp == first_char)); //retorna e i, e se o ultimo caractere for igual a ' ou ", soma mais um pq não iteramos por ele
+		return (size + (*temp == first_char));
 	}
 	while (*temp && (*temp != delimiter))
 	{
 		temp++;
 		size++;
 	}
-	return (size); // se não for uma palavra que comeca com aspas, simplesmente iteramos pela palavra inteira.
+	return (size);
 }
 
-void	copy_to_split(char *split, t_split_shell *this)
+void	copy_to_split(char *split, t_split_shell *this, int i)
 {
 	char	first_char;
-	int		i;
 
-	i = 0;
 	first_char = this->temp[0];
 	if (first_char == '\'' || first_char == '\"')
 	{
@@ -115,6 +113,11 @@ void	copy_to_split(char *split, t_split_shell *this)
 	split[i] = 0;
 }
 
+/*
+** Splits a string into tokens while obeying shell quotation rules;
+** DO NOT USE any type of quotes as the delimiter.
+** Caller must dealoc created strings AND pointer;
+*/
 char	**ft_split_shell(char *str, char delimiter)
 {
 	char			**splits;
@@ -125,37 +128,17 @@ char	**ft_split_shell(char *str, char delimiter)
 	this->delimiter = delimiter;
 	this->string = str;
 	count_words(this);
-	splits = calloc ((this->words + 1) , sizeof(char *)); //allocamos memória para a quantidade de palavras e um byte nulo;
+	splits = calloc ((this->words + 1), sizeof(char *));
 	this->temp = this->string;
 	while (this->i < this->words)
 	{
-		while (this->temp[0] == this->delimiter) //vai até a primeira/proxima palavra;
+		while (this->temp[0] == this->delimiter)
 			this->temp++;
-		splits[this->i] = calloc ((get_word_size(this->temp, this->delimiter) + 1) , sizeof(char)); //alloca memória pro rolê, já inicializada em 0 :)
-		copy_to_split (splits[this->i], this);
+		splits[this->i] = calloc ((get_word_size
+					(this->temp, delimiter) + 1), sizeof(char));
+		copy_to_split (splits[this->i], this, 0);
 		this->i++;
 	}
 	free (this);
 	return (splits);
-}
-
-int main (void)
-{
-	char	delimiter = ' ';
-	// char	*str = "<< hi this is \" a test<<t\'o>>test\" >><\'< \">\'>|>> \'>>\'<<>>";
-	char	*str = strdup("    aaaaa    \'bbbbbbb\'   \"ccccccc\" \'dd\"dd\'      \"ee\'ee\" ffffff g \'h\' \"  \"");
-	char **splits = ft_split_shell(str, delimiter);
-
-	int i = 0;
-	{
-		while (splits[i])
-		{
-			printf ("[%d]%s\n", i, splits[i]);
-			free (splits[i]);
-			i++;
-		}
-	}
-	free (splits);
-	free (str);
-	return (0);
 }
